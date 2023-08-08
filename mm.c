@@ -1,18 +1,3 @@
-// This adds coalescing of free blocks.
-// Improves performance to 54/100 ... takes less time.
-
-/*-------------------------------------------------------------------
- *  Malloc Lab Starter code:
- *        single doubly-linked free block list with LIFO policy
- *        with support for coalescing adjacent free blocks
- *
- * Terminology:
- * o We will implement an explicit free list allocator.
- * o We use "next" and "previous" to refer to blocks as ordered in
- *   the free list.
- * o We use "following" and "preceding" to refer to adjacent blocks
- *   in memory.
- *-------------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,48 +7,12 @@
 #include "memlib.h"
 #include "mm.h"
 
-/* Macros for unscaled pointer arithmetic to keep other code cleaner.
-   Casting to a char* has the effect that pointer arithmetic happens at
-   the byte granularity (i.e. POINTER_ADD(0x1, 1) would be 0x2).  (By
-   default, incrementing a pointer in C has the effect of incrementing
-   it by the size of the type to which it points (e.g. Block).)
-   We cast the result to void* to force you to cast back to the
-   appropriate type and ensure you don't accidentally use the resulting
-   pointer as a char* implicitly.
-*/
+
 #define UNSCALED_POINTER_ADD(p, x) ((void*)((char*)(p) + (x)))
 #define UNSCALED_POINTER_SUB(p, x) ((void*)((char*)(p) - (x)))
 
 
-/******** FREE LIST IMPLEMENTATION ***********************************/
 
-
-/* An BlockInfo contains information about a block, including the size
-   as well as pointers to the next and previous blocks in the free list.
-   This is similar to the "explicit free list" structure illustrated in
-   the lecture slides.
-
-   Note that the next pointer are only needed when the block is free. To
-   achieve better utilization, mm_malloc should use the space for next as
-   part of the space it returns.
-
-   +--------------+
-   |     size     |  <-  Block pointers in free list point here
-   |              |
-   |   (header)   |
-   |              |
-   |     prev     |
-   +--------------+
-   |   nextFree   |  <-  Pointers returned by mm_malloc point here
-   |   prevFree   |
-   +--------------+      (allocated blocks do not have a 'nextFree' field)
-   |  space and   |      (this is a space optimization...)
-   |   padding    |
-   |     ...      |      Free blocks write their nextFree/prevFree pointers in
-   |     ...      |      this space.
-   +--------------+
-
-*/
 typedef struct _BlockInfo {
   // Size of the block and whether or not the block is in use or free.
   // When the size is negative, the block is currently free.
