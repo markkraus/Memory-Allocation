@@ -9,4 +9,4 @@
 
 # How to Run
 make <br>
-./mdriver -h<br>
+./mdriver <br>
